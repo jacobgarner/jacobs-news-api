@@ -1,11 +1,20 @@
 const express = require("express");
-const { getTopics, getApis } = require("./controllers/topicsController");
+const {
+  getTopics,
+  getApis,
+  getArticle,
+} = require("./controllers/topicsController");
+const { customError, handlePsqlErrors } = require("./errors");
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/api/topics", getTopics)
-app.get("/api", getApis)
+app.get("/api/topics", getTopics);
+app.get("/api", getApis);
+app.get("/api/articles/:article_id", getArticle);
 
-module.exports = app
+app.use(customError);
+app.use(handlePsqlErrors);
+
+module.exports = app;
