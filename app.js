@@ -14,7 +14,7 @@ app.get("/api/topics", getTopics);
 app.get("/api", getApis);
 app.get("/api/articles/:article_id", getArticle);
 
-app.use(customError);
 app.use(handlePsqlErrors);
+app.use(customError);
 
 module.exports = app;

@@ -9,7 +9,7 @@ exports.getAllTopics = () => {
 
 exports.getAllApis = () => {
   return fs.readFile("./endpoints.json", "utf-8").then((apis) => {
-    return JSON.parse(apis);
+    return JSON.parse(apis)
   });
 };
 
@@ -17,8 +17,8 @@ exports.getArticleById = (id) => {
   return db
     .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
     .then((article) => {
-      if (!article) {
-        return Promise.reject({ status: 400, msg: "bad request" });
+      if (article.rows.length === 0) {
+        return Promise.reject({ status: 400, msg: "Article does not exist" });
       }
       return article.rows;
     });

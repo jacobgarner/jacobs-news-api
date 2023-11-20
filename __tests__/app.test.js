@@ -73,11 +73,18 @@ describe("/api/articles/:article_id", () => {
   it("Reponds 400 if invalid article id is provided", () => {
     return request(app).get("/api/articles/cat").expect(400);
   });
-  it("Reponds with 'invalid article id' as error message", () => {
+  it("Reponds with 'bad request' as error message if provided something other than number as article id", () => {
     return request(app)
       .get("/api/articles/cat")
       .then((response) => {
         expect(response.body.msg).toBe("bad request");
+      });
+  });
+  it("Reponds with 'bad request' as error message if article id does not exist", () => {
+    return request(app)
+      .get("/api/articles/306")
+      .then((response) => {
+        expect(response.body.err).toBe("Article does not exist");
       });
   });
 });
