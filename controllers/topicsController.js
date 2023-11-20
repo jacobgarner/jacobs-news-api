@@ -1,4 +1,4 @@
-const { getAllTopics } = require("../models/topicsModel")
+const { getAllTopics, getAllApis } = require("../models/topicsModel")
 
 
 exports.getTopics = (req, res, next) =>{
@@ -6,4 +6,10 @@ exports.getTopics = (req, res, next) =>{
         res.status(200).send({topics:data})
     })
     .catch(next)
+}
+
+exports.getApis = (req, res, next) =>{
+    getAllApis().then((data)=>{
+        res.status(200).send({apis:data})
+    })
 }
