@@ -1,5 +1,7 @@
 const db = require("../db/connection");
 const fs = require("fs/promises");
+const articles = require("../db/data/test-data/articles");
+const comments = require("../db/data/test-data/comments");
 
 exports.getAllTopics = () => {
   return db.query("SELECT * FROM topics").then((topics) => {
@@ -9,7 +11,7 @@ exports.getAllTopics = () => {
 
 exports.getAllApis = () => {
   return fs.readFile("./endpoints.json", "utf-8").then((apis) => {
-    return JSON.parse(apis)
+    return JSON.parse(apis);
   });
 };
 
@@ -25,7 +27,16 @@ exports.getArticleById = (id) => {
 };
 
 exports.getAllArticles = () => {
-    return db.query("SELECT * FROM articles").then((articles) => {
+  return db
+    .query(
+      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, 
+      articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count 
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    GROUP BY articles.article_id
+    ORDER BY created_at DESC`
+    )
+    .then((articles) => {
       return articles.rows;
     });
-  };
+};
