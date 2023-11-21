@@ -47,3 +47,10 @@ exports.getCommentsByArticleId = (article_id) =>{
         return comments.rows
     })
 }
+
+exports.postCommentToArticle = (newComment, article_id) =>{
+    const {username, body} = newComment
+
+    return db.query(`INSERT INTO comments(article_id, body, author)
+    VALUES ($1, $2, $3) RETURNING *`, [article_id, body, username])
+    }

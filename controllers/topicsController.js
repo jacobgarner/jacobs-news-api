@@ -4,6 +4,7 @@ const {
   getArticleById,
   getAllArticles,
   getCommentsByArticleId,
+  postCommentToArticle,
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -46,4 +47,13 @@ exports.getComments = (req, res, next) =>{
         res.status(200).send({comments})
     })
     .catch(next)
+}
+
+exports.postComment = (req, res, next) => {
+    const newComment = req.body
+    const {article_id} = req.params
+    postCommentToArticle(newComment, article_id).then((comment)=>{
+        console.log(comment)
+        res.status(200).send({commentAdded: comment})
+    })
 }

@@ -121,7 +121,7 @@ describe("/api/articles", () => {
   });
 });
 
-describe("/api/articles/:article_id/comments", () => {
+describe("GET /api/articles/:article_id/comments", () => {
   it("GET responds with status code 200", () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -129,9 +129,9 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         expect(response.body.comments).toBeSortedBy("created_at", {
           descending: true,
-        })
+        });
         expect(response.body.comments.length).toBe(11);
-        
+
         response.body.comments.forEach((comment) => {
           expect(comment.article_id).toBe(1);
           expect(comment).toMatchObject({
@@ -159,12 +159,23 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         expect(response.body.err).toBe("Article does not exist");
       });
-  })
-  it("Responds with 200 and empty array if no comments",()=>{
+  });
+  it("Responds with 200 and empty array if no comments", () => {
     return request(app)
-      .get("/api/articles/2/comments").expect(200)
-      .then((response)=>{
-        expect(response.body.comments).toEqual([])
-      })
-  })
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comments).toEqual([]);
+      });
+  });
+});
+
+describe.only("POST /api/articles/:article_id/comments", () => {
+  it("returns 200", () => {
+    const newComment = { username: "butter_bridge", body: "my comment is here"};
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(200)
+  });
 });
