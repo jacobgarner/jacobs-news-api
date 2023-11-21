@@ -49,3 +49,45 @@ describe("/api", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id", () => {
+  it("GET responds with status code 200", () => {
+    return request(app).get("/api/articles/2").expect(200);
+  });
+  it("GET responds with status code 200", () => {
+    return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article[0].article_id).toEqual(2)
+        expect(response.body.article[0]).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          body: expect.any(String),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  it("Reponds 400 if invalid article id is provided", () => {
+    return request(app).get("/api/articles/cat").expect(400);
+  });
+  it("Reponds with 'bad request' as error message if provided something other than number as article id", () => {
+    return request(app)
+      .get("/api/articles/cat")
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  it("Reponds with 'bad request' as error message if article id does not exist", () => {
+    return request(app)
+      .get("/api/articles/306")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toBe("Article does not exist");
+      });
+  });
+});
