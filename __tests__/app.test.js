@@ -127,13 +127,13 @@ describe("/api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then((response) => {
-        console.log(response.body.comments)
         expect(response.body.comments).toBeSortedBy("created_at", {
           descending: true,
         })
         expect(response.body.comments.length).toBe(11);
-        expect(response.body.comments[0].article_id).toBe(1);
+        
         response.body.comments.forEach((comment) => {
+          expect(comment.article_id).toBe(1);
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             body: expect.any(String),
@@ -159,5 +159,12 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         expect(response.body.err).toBe("Article does not exist");
       });
-  });
+  })
+  it("Responds with 200 and empty array if no comments",()=>{
+    return request(app)
+      .get("/api/articles/2/comments").expect(200)
+      .then((response)=>{
+        expect(response.body.comments).toEqual([])
+      })
+  })
 });
