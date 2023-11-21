@@ -124,18 +124,23 @@ describe("/api/articles", () => {
 describe("/api/articles/:article_id/comments", () => {
   it("GET responds with status code 200", () => {
     return request(app)
-      .get("/api/articles/3/comments")
+      .get("/api/articles/1/comments")
       .expect(200)
       .then((response) => {
-        expect(response.body.comments.length).toBe(2);
-        expect(response.body.comments[0].article_id).toBe(3);
-        expect(response.body.comments[0]).toMatchObject({
-          comment_id: expect.any(Number),
-          body: expect.any(String),
-          article_id: expect.any(Number),
-          author: expect.any(String),
-          votes: expect.any(Number),
-          created_at: expect.any(String),
+        console.log(response.body.comments)
+        expect(response.body.comments).toBeSortedBy("created_at", {
+          descending: true,
+        })
+        expect(response.body.comments.length).toBe(11);
+        expect(response.body.comments[0].article_id).toBe(1);
+        response.body.comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            body: expect.any(String),
+            author: expect.any(String),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+          });
         });
       });
   });
