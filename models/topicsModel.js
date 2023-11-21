@@ -23,3 +23,9 @@ exports.getArticleById = (id) => {
       return article.rows;
     });
 };
+
+exports.getAllArticles = () => {
+    return db.query("SELECT * FROM articles").then((articles) => {
+      return articles.rows;
+    });
+  };

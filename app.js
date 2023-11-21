@@ -3,6 +3,7 @@ const {
   getTopics,
   getApis,
   getArticle,
+  getArticles,
 } = require("./controllers/topicsController");
 const { customError, handlePsqlErrors } = require("./errors");
 
@@ -13,6 +14,8 @@ app.use(express.json());
 app.get("/api/topics", getTopics);
 app.get("/api", getApis);
 app.get("/api/articles/:article_id", getArticle);
+app.get("/api/articles", getArticles)
+
 
 app.use(handlePsqlErrors);
 app.use(customError);
