@@ -1,7 +1,6 @@
 const db = require("../db/connection");
 const fs = require("fs/promises");
-const articles = require("../db/data/test-data/articles");
-const comments = require("../db/data/test-data/comments");
+
 
 exports.getAllTopics = () => {
   return db.query("SELECT * FROM topics").then((topics) => {
@@ -40,3 +39,11 @@ exports.getAllArticles = () => {
       return articles.rows;
     });
 };
+
+exports.getCommentsByArticleId = (article_id) =>{
+    return db.query(`SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC`, [article_id]).then((comments)=>{
+        return comments.rows
+    })
+}

@@ -4,6 +4,7 @@ const {
   getApis,
   getArticle,
   getArticles,
+  getComments,
 } = require("./controllers/topicsController");
 const { customError, handlePsqlErrors } = require("./errors");
 
@@ -15,6 +16,7 @@ app.get("/api/topics", getTopics);
 app.get("/api", getApis);
 app.get("/api/articles/:article_id", getArticle);
 app.get("/api/articles", getArticles)
+app.get("/api/articles/:article_id/comments", getComments)
 
 
 app.use(handlePsqlErrors);
