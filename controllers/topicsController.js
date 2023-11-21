@@ -2,6 +2,7 @@ const {
   getAllTopics,
   getAllApis,
   getArticleById,
+  getAllArticles,
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -24,3 +25,10 @@ exports.getArticle = (req, res, next) => {
   })
   .catch(next)
 }
+
+exports.getArticles= (req, res, next) => {
+    getAllArticles()
+      .then((data) => {
+        res.status(200).send({ articles: data });
+      })
+  };

@@ -3,6 +3,8 @@ const app = require("../app");
 const data = require("../db/data/test-data");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
+const jestSorted = require("jest-sorted");
+
 
 beforeEach(() => {
   return seed(data);
@@ -91,3 +93,28 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+
+  describe("/api/articles", () => {
+    it("GET responds with status code 200", () => {
+      return request(app).get("/api/articles").expect(200);
+    });
+    it("GET responds with slug and description fields", () => {
+      return request(app)
+        .get("/api/articles")
+        .then((response) => {
+            expect(response.body.articles).toBeSortedBy("created_at", { descending: true });
+            expect(response.body.articles.length).toBe(13)
+            response.body.articles.forEach((article) => {
+            expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(Number)
+              });
+        });
+    });
+  })});
