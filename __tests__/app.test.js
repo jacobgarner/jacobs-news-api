@@ -57,7 +57,9 @@ describe("/api/articles/:article_id", () => {
   it("GET responds with status code 200", () => {
     return request(app)
       .get("/api/articles/2")
+      .expect(200)
       .then((response) => {
+        expect(response.body.article[0].article_id).toEqual(2)
         expect(response.body.article[0]).toMatchObject({
           author: expect.any(String),
           title: expect.any(String),
@@ -83,6 +85,7 @@ describe("/api/articles/:article_id", () => {
   it("Reponds with 'bad request' as error message if article id does not exist", () => {
     return request(app)
       .get("/api/articles/306")
+      .expect(404)
       .then((response) => {
         expect(response.body.err).toBe("Article does not exist");
       });
