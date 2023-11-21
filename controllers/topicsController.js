@@ -3,6 +3,7 @@ const {
   getAllApis,
   getArticleById,
   getAllArticles,
+  getCommentsByArticleId,
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -32,3 +33,17 @@ exports.getArticles= (req, res, next) => {
         res.status(200).send({ articles: data });
       })
   };
+
+exports.getComments = (req, res, next) =>{
+    const {article_id} = req.params
+    const commentsPromises = [getCommentsByArticleId(article_id)]
+    if(article_id) {
+        commentsPromises.push(getArticleById(article_id))
+    }
+
+    Promise.all(commentsPromises).then((resolvedPromises)=>{
+        const comments = resolvedPromises[0]
+        res.status(200).send({comments})
+    })
+    .catch(next)
+}

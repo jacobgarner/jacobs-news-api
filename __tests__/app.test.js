@@ -5,7 +5,6 @@ const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 const jestSorted = require("jest-sorted");
 
-
 beforeEach(() => {
   return seed(data);
 });
@@ -61,7 +60,7 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/2")
       .expect(200)
       .then((response) => {
-        expect(response.body.article[0].article_id).toEqual(2)
+        expect(response.body.article[0].article_id).toEqual(2);
         expect(response.body.article[0]).toMatchObject({
           author: expect.any(String),
           title: expect.any(String),
@@ -94,27 +93,66 @@ describe("/api/articles/:article_id", () => {
   });
 });
 
-  describe("/api/articles", () => {
-    it("GET responds with status code 200", () => {
-      return request(app).get("/api/articles").expect(200);
-    });
-    it("GET responds with slug and description fields", () => {
-      return request(app)
-        .get("/api/articles")
-        .then((response) => {
-            expect(response.body.articles).toBeSortedBy("created_at", { descending: true });
-            expect(response.body.articles.length).toBe(13)
-            response.body.articles.forEach((article) => {
-            expect(article).toMatchObject({
-                author: expect.any(String),
-                title: expect.any(String),
-                article_id: expect.any(Number),
-                topic: expect.any(String),
-                created_at: expect.any(String),
-                votes: expect.any(Number),
-                article_img_url: expect.any(String),
-                comment_count: expect.any(Number)
-              });
+describe("/api/articles", () => {
+  it("GET responds with status code 200", () => {
+    return request(app).get("/api/articles").expect(200);
+  });
+  it("GET responds with slug and description fields", () => {
+    return request(app)
+      .get("/api/articles")
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
         });
-    });
-  })});
+        expect(response.body.articles.length).toBe(13);
+        response.body.articles.forEach((article) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  it("GET responds with status code 200", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comments.length).toBe(2);
+        expect(response.body.comments[0].article_id).toBe(3);
+        expect(response.body.comments[0]).toMatchObject({
+          comment_id: expect.any(Number),
+          body: expect.any(String),
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        });
+      });
+  });
+  it("Reponds 400 if invalid article id is provided", () => {
+    return request(app)
+      .get("/api/articles/cat/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual("bad request");
+      });
+  });
+  it("Responds with 'does not exist' if valid article ID provided that does not exist", () => {
+    return request(app)
+      .get("/api/articles/345/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toBe("Article does not exist");
+      });
+  });
+});
