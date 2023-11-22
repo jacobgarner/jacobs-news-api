@@ -66,6 +66,12 @@ exports.getCommentsByArticleId = (article_id) => {
 exports.postCommentToArticle = (newComment, article_id) => {
 
   const { username, body } = newComment;
+  if (!newComment || !newComment.username || !newComment.body) {
+    return Promise.reject({
+      status: 400,
+      msg: 'request body must include username and body properties'
+    });
+  }
 
   return db.query(
     `INSERT INTO comments(article_id, body, author)

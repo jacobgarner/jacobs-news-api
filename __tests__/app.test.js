@@ -9,7 +9,7 @@ beforeEach(() => {
   return seed(data);
 });
 afterAll(() => {
-  db.end();
+  return db.end();
 });
 
 describe("/api/topics", () => {
@@ -170,40 +170,54 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
-
 describe("POST /api/articles/:article_id/comments", () => {
   it("returns 201 and correct comment body when all details correct ", () => {
-    const newComment = { username: "butter_bridge", body: "my comment is here"};
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
     return request(app)
       .post("/api/articles/2/comments")
       .send(newComment)
       .expect(201)
-      .then((comment)=>{
-        const addedComment = comment.body.addedComment.body
-        expect(newComment.body).toEqual(addedComment)
-      })
-  })
-  
-  it("Responds with a 404 if the article id does not exist",()=>{
-    const newComment = { username: "butter_bridge", body: "my comment is here"}
+      .then((comment) => {
+        const addedComment = comment.body.addedComment.body;
+        expect(newComment.body).toEqual(addedComment);
+      });
+  });
+  it("Responds with a 404 if the article id does not exist", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
     return request(app)
       .post("/api/articles/345/comments")
       .send(newComment)
       .expect(404)
-      .then((response)=> {
-        expect(response.body.err).toEqual('Article does not exist')
-      }
-      )
-  })
-  it("Responds with a 404 if the user does not exist",()=>{
-    const newComment = { username: "dog", body: "my comment is here"}
+      .then((response) => {
+        expect(response.body.err).toEqual("Article does not exist");
+      });
+  });
+  it("Responds with a 404 if the username does not exist", () => {
+    const commentToAdd = { username: "doh", body: "my comment is here" };
     return request(app)
-      .post("/api/articles/2/comments")
-      .send(newComment)
+      .post("/api/articles/1/comments")
+      .send(commentToAdd)
       .expect(404)
-      .then((response)=> {
-        expect(response.body.err).toBe('User does not exist')
-      }
-      )
-  })
+      .then((response) => {
+        expect(response.body.err).toEqual("User does not exist");
+      });
+  });
+  it("Responds with 400 if username or body is missing", () => {
+    const commentToAdd = { body: "my comment is here" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(commentToAdd)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.err).toEqual(
+          "request body must include username and body properties"
+        );
+      });
+  });
 });

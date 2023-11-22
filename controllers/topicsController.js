@@ -53,11 +53,12 @@ exports.getComments = (req, res, next) => {
 exports.postComment = (req, res, next) => {
   const newComment = req.body;
   const { article_id } = req.params;
+  
   const commentPromises = [
       getArticleById(article_id),
       getUserByUsername(newComment.username),
       postCommentToArticle(newComment, article_id),
-  ];
+  ]
   Promise.all(commentPromises)
     .then((resolvedPromises) => {
       res.status(201).send({ addedComment: resolvedPromises[2].rows[0] });
