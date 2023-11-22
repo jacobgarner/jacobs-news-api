@@ -20,7 +20,6 @@ app.get("/api/articles", getArticles)
 app.get("/api/articles/:article_id/comments", getComments)
 app.post("/api/articles/:article_id/comments", postComment)
 
-
 app.use(handlePsqlErrors);
 app.use(customError);
 

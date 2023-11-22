@@ -3,7 +3,7 @@ const app = require("../app");
 const data = require("../db/data/test-data");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
-const jestSorted = require("jest-sorted");
+require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -170,12 +170,40 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
-describe.only("POST /api/articles/:article_id/comments", () => {
-  it("returns 200", () => {
+
+describe("POST /api/articles/:article_id/comments", () => {
+  it("returns 201 and correct comment body when all details correct ", () => {
     const newComment = { username: "butter_bridge", body: "my comment is here"};
     return request(app)
       .post("/api/articles/2/comments")
       .send(newComment)
-      .expect(200)
-  });
+      .expect(201)
+      .then((comment)=>{
+        const addedComment = comment.body.addedComment.body
+        expect(newComment.body).toEqual(addedComment)
+      })
+  })
+  
+  it("Responds with a 404 if the article id does not exist",()=>{
+    const newComment = { username: "butter_bridge", body: "my comment is here"}
+    return request(app)
+      .post("/api/articles/345/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response)=> {
+        expect(response.body.err).toEqual('Article does not exist')
+      }
+      )
+  })
+  it("Responds with a 404 if the user does not exist",()=>{
+    const newComment = { username: "dog", body: "my comment is here"}
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response)=> {
+        expect(response.body.err).toBe('User does not exist')
+      }
+      )
+  })
 });
