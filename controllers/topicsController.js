@@ -7,7 +7,7 @@ const {
   postCommentToArticle,
   getUserByUsername,
   patchArticleById,
-  
+
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -73,7 +73,7 @@ exports.patchArticle = (req, res, next) =>{
   const {inc_votes} = req.body
   Promise.all([getArticleById(article_id), patchArticleById(article_id, inc_votes)])
   .then((resolvedPromises)=>{
-    res.status(201).send(resolvedPromises[1])
+    res.status(200).send(resolvedPromises[1][0])
   })
   .catch(next)
 }
