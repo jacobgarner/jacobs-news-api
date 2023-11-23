@@ -123,3 +123,10 @@ exports.deleteCommentById = (comment_id) => {
       return deletedComment;
     });
 };
+
+exports.getAllUsers = () =>{
+  return db.query(`SELECT * FROM users`)
+  .then(({rows})=>{
+    return rows
+  })
+}

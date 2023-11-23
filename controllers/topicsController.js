@@ -8,7 +8,8 @@ const {
   getUserByUsername,
   patchArticleById,
   getCommentById,
-  deleteCommentById
+  deleteCommentById,
+  getAllUsers
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -85,4 +86,11 @@ exports.deleteComment = (req, res, next) =>{
     res.status(204).send()
   })
   .catch(next)
+}
+
+exports.getUsers = (req, res, next) =>{
+
+  getAllUsers().then((users)=>{
+    res.status(200).send({users})
+  })
 }
