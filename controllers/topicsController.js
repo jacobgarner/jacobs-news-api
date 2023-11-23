@@ -9,7 +9,8 @@ const {
   patchArticleById,
   getCommentById,
   deleteCommentById,
-  getAllUsers
+  getAllUsers,
+  getTopic
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -35,9 +36,18 @@ exports.getArticle = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const topic = req.query.topic
-  getAllArticles(topic).then((data) => {
-    res.status(200).send({ articles: data });
-  });
+  if(topic){
+    Promise.all([getTopic(topic), getAllArticles(topic)])
+    .then(([topics, articles])=>{
+      res.status(200).send(articles)
+    })
+    .catch(next)}
+
+    getAllArticles().then((articles)=>{
+      res.status(200).send(articles)
+    })
+    .catch(next)
+
 };
 
 exports.getComments = (req, res, next) => {
