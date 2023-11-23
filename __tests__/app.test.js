@@ -258,3 +258,66 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   })
 });
+
+describe("PATCH /api/articles/:article_id", ()=>{
+  it("Return 201 and updated article", ()=>{
+  const patchObj = {inc_votes:5}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(patchObj)
+  .expect(200)
+  .then((response)=>{
+    expect(response.body.votes).toBe(105)
+    expect(response.body.article_id).toBe(1)
+    expect(response.body).toMatchObject({
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      created_at: expect.any(String),
+      article_img_url: expect.any(String),
+    })
+  })
+  })
+  it("Returns 404 if valid article id does not exist",()=>{
+    const patchObj = {inc_votes:5}
+  return request(app)
+  .patch("/api/articles/1000")
+  .send(patchObj)
+  .expect(404)
+  .then((response)=>{
+    expect(response.body.err).toBe("Article does not exist")
+  })
+  })
+  it("Responds with 400 if vote count is missing",()=>{
+    const patchObj = {}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(patchObj)
+  .expect(400)
+  .then((response)=>{
+    expect(response.body.err).toBe('Missing vote count')
+  })
+  })
+  it("Returns 400 if invalid article id provided",()=>{
+    const patchObj = {inc_votes:5}
+    return request(app)
+  .patch("/api/articles/cat")
+  .send(patchObj)
+  .expect(400)
+  .then((response)=>{
+    expect(response.body.msg).toBe("bad request")
+  })
+  })
+  it("Responds with 400 if vote count is not a number",()=>{
+    const patchObj = {inc_votes:"dog"}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(patchObj)
+  .expect(400)
+  .then((response)=>{
+    expect(response.body.msg).toBe('bad request')
+  })
+  })
+})
+
