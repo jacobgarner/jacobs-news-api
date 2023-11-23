@@ -258,3 +258,37 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   })
 });
+
+describe("PATCH /api/articles/:article_id", ()=>{
+  it("Return 201 and updated article", ()=>{
+  const patchObj = {inc_votes:5}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(patchObj)
+  .expect(201)
+  .then((response)=>{
+    expect(response.body[0].votes).toBe(105)
+  })
+  })
+  it("Returns 404 if valid article id does not exist",()=>{
+    const patchObj = {inc_votes:5}
+  return request(app)
+  .patch("/api/articles/1000")
+  .send(patchObj)
+  .expect(404)
+  .then((response)=>{
+    expect(response.body.err).toBe("Article does not exist")
+  })
+  })
+  it("Responds with 400 if vote count is missing",()=>{
+    const patchObj = {}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(patchObj)
+  .expect(400)
+  .then((response)=>{
+    expect(response.body.err).toBe('Missing vote count')
+  })
+  })
+})
+

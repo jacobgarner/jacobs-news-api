@@ -6,6 +6,8 @@ const {
   getCommentsByArticleId,
   postCommentToArticle,
   getUserByUsername,
+  patchArticleById,
+  
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -65,3 +67,13 @@ exports.postComment = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.patchArticle = (req, res, next) =>{
+  const {article_id} = req.params
+  const {inc_votes} = req.body
+  Promise.all([getArticleById(article_id), patchArticleById(article_id, inc_votes)])
+  .then((resolvedPromises)=>{
+    res.status(201).send(resolvedPromises[1])
+  })
+  .catch(next)
+}
