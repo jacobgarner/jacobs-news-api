@@ -321,3 +321,26 @@ describe("PATCH /api/articles/:article_id", ()=>{
   })
 })
 
+describe("DELETE /api/comments/:comment_id", ()=>{
+  it("responds 204 after successful deletion", ()=>{
+    return request(app)
+  .delete("/api/comments/2")
+  .expect(204)
+  })
+  it("Returns 404 if valid comment id does not exist",()=>{
+    return request(app)
+  .delete("/api/comments/10000")
+  .expect(404)
+  .then((response)=>{
+    expect(response.body.err).toBe("Comment does not exist")
+  })
+  })
+  it("Returns 400 if invalid comment id provided",()=>{
+    return request(app)
+  .delete("/api/comments/cat")
+  .expect(400)
+  .then((response)=>{
+    expect(response.body.msg).toBe("bad request")
+  })
+})})
+

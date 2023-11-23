@@ -7,7 +7,8 @@ const {
   postCommentToArticle,
   getUserByUsername,
   patchArticleById,
-
+  getCommentById,
+  deleteCommentById
 } = require("../models/topicsModel");
 
 exports.getTopics = (req, res, next) => {
@@ -74,6 +75,14 @@ exports.patchArticle = (req, res, next) =>{
   Promise.all([getArticleById(article_id), patchArticleById(article_id, inc_votes)])
   .then((resolvedPromises)=>{
     res.status(200).send(resolvedPromises[1][0])
+  })
+  .catch(next)
+}
+exports.deleteComment = (req, res, next) =>{
+  const {comment_id} = req.params
+  Promise.all([getCommentById(comment_id),deleteCommentById(comment_id)])
+  .then((resolvedPromises)=>{
+    res.status(204).send()
   })
   .catch(next)
 }
