@@ -101,11 +101,11 @@ describe("GET /api/articles", () => {
     return request(app)
       .get("/api/articles")
       .then((response) => {
-        expect(response.body.articles).toBeSortedBy("created_at", {
+        expect(response.body).toBeSortedBy("created_at", {
           descending: true,
         });
-        expect(response.body.articles.length).toBe(13);
-        response.body.articles.forEach((article) => {
+        expect(response.body.length).toBe(13);
+        response.body.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
@@ -181,15 +181,15 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(201)
       .then((comment) => {
-        const addedComment = comment.body.addedComment
+        const addedComment = comment.body.addedComment;
         expect(newComment.body).toEqual(addedComment.body);
-        expect(newComment.username).toEqual(addedComment.author)
+        expect(newComment.username).toEqual(addedComment.author);
         expect(comment.body.addedComment).toMatchObject({
           comment_id: expect.any(Number),
           article_id: expect.any(Number),
           votes: expect.any(Number),
-          created_at: expect.any(String)
-        })
+          created_at: expect.any(String),
+        });
       });
   });
   it("Responds with a 404 if the article id does not exist", () => {
@@ -226,8 +226,8 @@ describe("POST /api/articles/:article_id/comments", () => {
           "request body must include username and body properties"
         );
       });
-  })
-  it("Responds with 400 if article id provided is invalid",()=>{
+  });
+  it("Responds with 400 if article id provided is invalid", () => {
     const newComment = {
       username: "butter_bridge",
       body: "my comment is here",
@@ -237,16 +237,14 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toEqual(
-          "bad request"
-        );
+        expect(response.body.msg).toEqual("bad request");
       });
-  })
-  it("Responds 201 if additional fields are provided in the req body",()=>{
+  });
+  it("Responds 201 if additional fields are provided in the req body", () => {
     const newComment = {
       username: "butter_bridge",
       body: "my comment is here",
-      favFood: "pancakes"
+      favFood: "pancakes",
     };
     return request(app)
       .post("/api/articles/2/comments")
@@ -256,93 +254,92 @@ describe("POST /api/articles/:article_id/comments", () => {
         const addedComment = comment.body.addedComment.body;
         expect(newComment.body).toEqual(addedComment);
       });
-  })
+  });
 });
 
-describe("PATCH /api/articles/:article_id", ()=>{
-  it("Return 201 and updated article", ()=>{
-  const patchObj = {inc_votes:5}
-  return request(app)
-  .patch("/api/articles/1")
-  .send(patchObj)
-  .expect(200)
-  .then((response)=>{
-    expect(response.body.votes).toBe(105)
-    expect(response.body.article_id).toBe(1)
-    expect(response.body).toMatchObject({
-      title: expect.any(String),
-      topic: expect.any(String),
-      author: expect.any(String),
-      body: expect.any(String),
-      created_at: expect.any(String),
-      article_img_url: expect.any(String),
-    })
-  })
-  })
-  it("Returns 404 if valid article id does not exist",()=>{
-    const patchObj = {inc_votes:5}
-  return request(app)
-  .patch("/api/articles/1000")
-  .send(patchObj)
-  .expect(404)
-  .then((response)=>{
-    expect(response.body.err).toBe("Article does not exist")
-  })
-  })
-  it("Responds with 400 if vote count is missing",()=>{
-    const patchObj = {}
-  return request(app)
-  .patch("/api/articles/1")
-  .send(patchObj)
-  .expect(400)
-  .then((response)=>{
-    expect(response.body.err).toBe('Missing vote count')
-  })
-  })
-  it("Returns 400 if invalid article id provided",()=>{
-    const patchObj = {inc_votes:5}
+describe("PATCH /api/articles/:article_id", () => {
+  it("Return 201 and updated article", () => {
+    const patchObj = { inc_votes: 5 };
     return request(app)
-  .patch("/api/articles/cat")
-  .send(patchObj)
-  .expect(400)
-  .then((response)=>{
-    expect(response.body.msg).toBe("bad request")
-  })
-  })
-  it("Responds with 400 if vote count is not a number",()=>{
-    const patchObj = {inc_votes:"dog"}
-  return request(app)
-  .patch("/api/articles/1")
-  .send(patchObj)
-  .expect(400)
-  .then((response)=>{
-    expect(response.body.msg).toBe('bad request')
-  })
-  })
-})
+      .patch("/api/articles/1")
+      .send(patchObj)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.votes).toBe(105);
+        expect(response.body.article_id).toBe(1);
+        expect(response.body).toMatchObject({
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  it("Returns 404 if valid article id does not exist", () => {
+    const patchObj = { inc_votes: 5 };
+    return request(app)
+      .patch("/api/articles/1000")
+      .send(patchObj)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toBe("Article does not exist");
+      });
+  });
+  it("Responds with 400 if vote count is missing", () => {
+    const patchObj = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchObj)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.err).toBe("Missing vote count");
+      });
+  });
+  it("Returns 400 if invalid article id provided", () => {
+    const patchObj = { inc_votes: 5 };
+    return request(app)
+      .patch("/api/articles/cat")
+      .send(patchObj)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  it("Responds with 400 if vote count is not a number", () => {
+    const patchObj = { inc_votes: "dog" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchObj)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+});
 
-describe("DELETE /api/comments/:comment_id", ()=>{
-  it("responds 204 after successful deletion", ()=>{
+describe("DELETE /api/comments/:comment_id", () => {
+  it("responds 204 after successful deletion", () => {
+    return request(app).delete("/api/comments/2").expect(204);
+  });
+  it("Returns 404 if valid comment id does not exist", () => {
     return request(app)
-  .delete("/api/comments/2")
-  .expect(204)
-  })
-  it("Returns 404 if valid comment id does not exist",()=>{
+      .delete("/api/comments/10000")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toBe("Comment does not exist");
+      });
+  });
+  it("Returns 400 if invalid comment id provided", () => {
     return request(app)
-  .delete("/api/comments/10000")
-  .expect(404)
-  .then((response)=>{
-    expect(response.body.err).toBe("Comment does not exist")
-  })
-  })
-  it("Returns 400 if invalid comment id provided",()=>{
-    return request(app)
-  .delete("/api/comments/cat")
-  .expect(400)
-  .then((response)=>{
-    expect(response.body.msg).toBe("bad request")
-  })
-})})
+      .delete("/api/comments/cat")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+});
 
 describe("/api/users", () => {
   it("GET responds with status code 200", () => {
@@ -358,7 +355,7 @@ describe("/api/users", () => {
           expect(user).toMatchObject({
             username: expect.any(String),
             name: expect.any(String),
-            avatar_url: expect.any(String)
+            avatar_url: expect.any(String),
           });
         });
       });
@@ -375,7 +372,7 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
       .then((response) => {
         expect(response.body.length).toBe(12);
         response.body.forEach((article) => {
-          expect(article.topic).toEqual("mitch")
+          expect(article.topic).toEqual("mitch");
           expect(article).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
@@ -387,21 +384,21 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
           });
         });
       });
-  })
-  it("Returns 400 if topic does not exist",()=>{
+  });
+  it("Returns 400 if topic does not exist", () => {
     return request(app)
       .get("/api/articles?topic=dogs")
       .expect(400)
-      .then((response)=>{
-        expect(response.body.err).toBe("topic does not exist")
-      })
-  })
-  it("Returns 200 if topic exists but has no articles",()=>{
+      .then((response) => {
+        expect(response.body.err).toBe("topic does not exist");
+      });
+  });
+  it("Returns 200 if topic exists but has no articles", () => {
     return request(app)
       .get("/api/articles?topic=paper")
       .expect(200)
-      .then((response)=>{
-        expect(response.body).toEqual([])
-      })
-  })
+      .then((response) => {
+        expect(response.body).toEqual([]);
+      });
+  });
 });
