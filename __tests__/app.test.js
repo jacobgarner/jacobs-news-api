@@ -3,13 +3,13 @@ const app = require("../app");
 const data = require("../db/data/test-data");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
-const jestSorted = require("jest-sorted");
+require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
 });
 afterAll(() => {
-  db.end();
+  return db.end();
 });
 
 describe("/api/topics", () => {
@@ -121,7 +121,7 @@ describe("/api/articles", () => {
   });
 });
 
-describe("/api/articles/:article_id/comments", () => {
+describe("GET /api/articles/:article_id/comments", () => {
   it("GET responds with status code 200", () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -129,9 +129,9 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         expect(response.body.comments).toBeSortedBy("created_at", {
           descending: true,
-        })
+        });
         expect(response.body.comments.length).toBe(11);
-        
+
         response.body.comments.forEach((comment) => {
           expect(comment.article_id).toBe(1);
           expect(comment).toMatchObject({
@@ -159,12 +159,102 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         expect(response.body.err).toBe("Article does not exist");
       });
-  })
-  it("Responds with 200 and empty array if no comments",()=>{
+  });
+  it("Responds with 200 and empty array if no comments", () => {
     return request(app)
-      .get("/api/articles/2/comments").expect(200)
-      .then((response)=>{
-        expect(response.body.comments).toEqual([])
-      })
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comments).toEqual([]);
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  it("returns 201 and correct comment body when all details correct ", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then((comment) => {
+        const addedComment = comment.body.addedComment
+        expect(newComment.body).toEqual(addedComment.body);
+        expect(newComment.username).toEqual(addedComment.author)
+        expect(comment.body.addedComment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String)
+        })
+      });
+  });
+  it("Responds with a 404 if the article id does not exist", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
+    return request(app)
+      .post("/api/articles/345/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toEqual("Article does not exist");
+      });
+  });
+  it("Responds with a 404 if the username does not exist", () => {
+    const commentToAdd = { username: "doh", body: "my comment is here" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(commentToAdd)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.err).toEqual("User does not exist");
+      });
+  });
+  it("Responds with 400 if username or body is missing", () => {
+    const commentToAdd = { body: "my comment is here" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(commentToAdd)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.err).toEqual(
+          "request body must include username and body properties"
+        );
+      });
+  })
+  it("Responds with 400 if article id provided is invalid",()=>{
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
+    return request(app)
+      .post("/api/articles/cat/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual(
+          "bad request"
+        );
+      });
+  })
+  it("Responds 201 if additional fields are provided in the req body",()=>{
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+      favFood: "pancakes"
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then((comment) => {
+        const addedComment = comment.body.addedComment.body;
+        expect(newComment.body).toEqual(addedComment);
+      });
   })
 });
