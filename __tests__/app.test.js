@@ -181,8 +181,15 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(201)
       .then((comment) => {
-        const addedComment = comment.body.addedComment.body;
-        expect(newComment.body).toEqual(addedComment);
+        const addedComment = comment.body.addedComment
+        expect(newComment.body).toEqual(addedComment.body);
+        expect(newComment.username).toEqual(addedComment.author)
+        expect(comment.body.addedComment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String)
+        })
       });
   });
   it("Responds with a 404 if the article id does not exist", () => {
@@ -219,5 +226,35 @@ describe("POST /api/articles/:article_id/comments", () => {
           "request body must include username and body properties"
         );
       });
-  });
+  })
+  it("Responds with 400 if article id provided is invalid",()=>{
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+    };
+    return request(app)
+      .post("/api/articles/cat/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual(
+          "bad request"
+        );
+      });
+  })
+  it("Responds 201 if additional fields are provided in the req body",()=>{
+    const newComment = {
+      username: "butter_bridge",
+      body: "my comment is here",
+      favFood: "pancakes"
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then((comment) => {
+        const addedComment = comment.body.addedComment.body;
+        expect(newComment.body).toEqual(addedComment);
+      });
+  })
 });
