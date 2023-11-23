@@ -373,8 +373,8 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .then((response) => {
-        expect(response.body.articles.length).toBe(12);
-        response.body.articles.forEach((article) => {
+        expect(response.body.length).toBe(12);
+        response.body.forEach((article) => {
           expect(article.topic).toEqual("mitch")
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -387,5 +387,21 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
           });
         });
       });
-  });
+  })
+  it("Returns 400 if topic does not exist",()=>{
+    return request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(400)
+      .then((response)=>{
+        expect(response.body.err).toBe("topic does not exist")
+      })
+  })
+  it("Returns 200 if topic exists but has no articles",()=>{
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((response)=>{
+        expect(response.body).toEqual([])
+      })
+  })
 });

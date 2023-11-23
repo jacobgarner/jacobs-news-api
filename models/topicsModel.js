@@ -7,6 +7,17 @@ exports.getAllTopics = () => {
   });
 };
 
+exports.getTopic = (topic) => {
+  return db
+    .query(`SELECT * FROM topics WHERE slug =$1`, [topic])
+    .then((topics) => {
+      if (topics.rows.length === 0) {
+        return Promise.reject({ status: 400, msg: "topic does not exist" });
+      }
+      return topics.rows;
+    });
+};
+
 exports.getAllApis = () => {
   return fs.readFile("./endpoints.json", "utf-8").then((apis) => {
     return JSON.parse(apis);
@@ -35,7 +46,7 @@ exports.getUserByUsername = (username) => {
     });
 };
 
-exports.getAllArticles = (topic="%") => {
+exports.getAllArticles = (topic = "%") => {
   return db
     .query(
       `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, 
@@ -65,22 +76,23 @@ exports.getCommentsByArticleId = (article_id) => {
 };
 
 exports.postCommentToArticle = (newComment, article_id) => {
-
   const { username, body } = newComment;
   if (!newComment || !newComment.username || !newComment.body) {
     return Promise.reject({
       status: 400,
-      msg: 'request body must include username and body properties'
+      msg: "request body must include username and body properties",
     });
   }
 
-  return db.query(
-    `INSERT INTO comments(article_id, body, author)
+  return db
+    .query(
+      `INSERT INTO comments(article_id, body, author)
     VALUES ($1, $2, $3) RETURNING *`,
-    [article_id, body, username]
-  ).then((comment)=>{
-    return comment
-  })
+      [article_id, body, username]
+    )
+    .then((comment) => {
+      return comment;
+    });
 };
 
 exports.patchArticleById = (article_id, inc_votes) => {
@@ -125,9 +137,8 @@ exports.deleteCommentById = (comment_id) => {
     });
 };
 
-exports.getAllUsers = () =>{
-  return db.query(`SELECT * FROM users`)
-  .then(({rows})=>{
-    return rows
-  })
-}
+exports.getAllUsers = () => {
+  return db.query(`SELECT * FROM users`).then(({ rows }) => {
+    return rows;
+  });
+};
