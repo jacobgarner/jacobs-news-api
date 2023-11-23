@@ -7,6 +7,17 @@ exports.getAllTopics = () => {
   });
 };
 
+exports.getTopic = (topic) => {
+  return db
+    .query(`SELECT * FROM topics WHERE slug =$1`, [topic])
+    .then((topics) => {
+      if (topics.rows.length === 0) {
+        return Promise.reject({ status: 400, msg: "topic does not exist" });
+      }
+      return topics.rows;
+    });
+};
+
 exports.getAllApis = () => {
   return fs.readFile("./endpoints.json", "utf-8").then((apis) => {
     return JSON.parse(apis);
@@ -35,13 +46,14 @@ exports.getUserByUsername = (username) => {
     });
 };
 
-exports.getAllArticles = () => {
+exports.getAllArticles = (topic = "%") => {
   return db
     .query(
       `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, 
       articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INT) AS comment_count 
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
+    WHERE  articles.topic LIKE '${topic}'
     GROUP BY articles.article_id
     ORDER BY created_at DESC`
     )
@@ -64,22 +76,23 @@ exports.getCommentsByArticleId = (article_id) => {
 };
 
 exports.postCommentToArticle = (newComment, article_id) => {
-
   const { username, body } = newComment;
   if (!newComment || !newComment.username || !newComment.body) {
     return Promise.reject({
       status: 400,
-      msg: 'request body must include username and body properties'
+      msg: "request body must include username and body properties",
     });
   }
 
-  return db.query(
-    `INSERT INTO comments(article_id, body, author)
+  return db
+    .query(
+      `INSERT INTO comments(article_id, body, author)
     VALUES ($1, $2, $3) RETURNING *`,
-    [article_id, body, username]
-  ).then((comment)=>{
-    return comment
-  })
+      [article_id, body, username]
+    )
+    .then((comment) => {
+      return comment;
+    });
 };
 
 exports.patchArticleById = (article_id, inc_votes) => {
@@ -124,9 +137,8 @@ exports.deleteCommentById = (comment_id) => {
     });
 };
 
-exports.getAllUsers = () =>{
-  return db.query(`SELECT * FROM users`)
-  .then(({rows})=>{
-    return rows
-  })
-}
+exports.getAllUsers = () => {
+  return db.query(`SELECT * FROM users`).then(({ rows }) => {
+    return rows;
+  });
+};

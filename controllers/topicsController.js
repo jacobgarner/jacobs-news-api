@@ -34,7 +34,8 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  getAllArticles().then((data) => {
+  const topic = req.query.topic
+  getAllArticles(topic).then((data) => {
     res.status(200).send({ articles: data });
   });
 };

@@ -93,7 +93,7 @@ describe("/api/articles/:article_id", () => {
   });
 });
 
-describe("/api/articles", () => {
+describe("GET /api/articles", () => {
   it("GET responds with status code 200", () => {
     return request(app).get("/api/articles").expect(200);
   });
@@ -363,4 +363,45 @@ describe("/api/users", () => {
         });
       });
   });
+});
+
+describe("GET /api/articles can accept 'topic' as a query", () => {
+  it("GET responds with status code 200", () => {
+    return request(app).get("/api/articles").expect(200);
+  });
+  it("GET responds with articles with 'mitch' as the topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .then((response) => {
+        expect(response.body.length).toBe(12);
+        response.body.forEach((article) => {
+          expect(article.topic).toEqual("mitch")
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  })
+  it("Returns 400 if topic does not exist",()=>{
+    return request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(400)
+      .then((response)=>{
+        expect(response.body.err).toBe("topic does not exist")
+      })
+  })
+  it("Returns 200 if topic exists but has no articles",()=>{
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((response)=>{
+        expect(response.body).toEqual([])
+      })
+  })
 });
