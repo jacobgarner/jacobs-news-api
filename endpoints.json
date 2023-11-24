@@ -11,7 +11,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["author", "topic"],
     "exampleResponse": {
       "articles": [
         {
@@ -25,5 +25,91 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves the article of the id provided",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 0,
+          "comment_count": 6
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves the comments from the article of the provided article id",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 9,
+          "body": "Superficially charming",
+          "article_id": 1,
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2020-01-01T03:08:00.000Z"
+        }
+      ]
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "adds a new comment to the specified article",
+    "queries": [],
+    "exampleRequestBody": { "body": "my comment is here" },
+    "exampleResponse": {
+      "addedComment": [
+        {
+          "comment_id": 19,
+          "body": "my comment is here",
+          "article_id": 2,
+          "author": "butter_bridge",
+          "votes": 0,
+          "created_at": "2023-11-24T14:57:18.086Z"
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "change the vote count of a specific article",
+    "queries": [],
+    "exampleRequestBody": { "inc_votes": 5 },
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": "2020-07-09T20:11:00.000Z",
+          "votes": 105,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id":{
+    "description": "delete a specific comment",
+    "queries": []
   }
 }
