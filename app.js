@@ -9,7 +9,7 @@ const {
   patchArticle,
   deleteComment,
   getUsers
-} = require("./controllers/topicsController");
+} = require("./controllers/controller");
 const { customError, handlePsqlErrors } = require("./errors");
 
 const app = express();

@@ -11,11 +11,11 @@ const {
   deleteCommentById,
   getAllUsers,
   getTopic
-} = require("../models/topicsModel");
+} = require("../models/model");
 
 exports.getTopics = (req, res, next) => {
-  getAllTopics().then((data) => {
-    res.status(200).send({ topics: data });
+  getAllTopics().then((topics) => {
+    res.status(200).send({ topics });
   });
 };
 

@@ -2,8 +2,8 @@ const db = require("../db/connection");
 const fs = require("fs/promises");
 
 exports.getAllTopics = () => {
-  return db.query("SELECT * FROM topics").then((topics) => {
-    return topics.rows;
+  return db.query("SELECT * FROM topics").then(({rows}) => {
+    return rows;
   });
 };
 
@@ -44,22 +44,22 @@ exports.getArticleById = (id) => {
   `,
       [id]
     )
-    .then((article) => {
-      if (article.rows.length === 0) {
+    .then(({rows}) => {
+      if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Article does not exist" });
       }
-      return article.rows;
+      return rows[0];
     });
 };
 
 exports.getUserByUsername = (username) => {
   return db
     .query(`SELECT * FROM users WHERE username = $1`, [username])
-    .then((user) => {
-      if (user.rows.length === 0) {
+    .then(({rows}) => {
+      if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "User does not exist" });
       }
-      return user.rows;
+      return rows;
     });
 };
 
@@ -74,8 +74,8 @@ exports.getAllArticles = (topic = "%") => {
     GROUP BY articles.article_id
     ORDER BY created_at DESC`
     )
-    .then((articles) => {
-      return articles.rows;
+    .then(({rows}) => {
+      return rows;
     });
 };
 
@@ -87,8 +87,8 @@ exports.getCommentsByArticleId = (article_id) => {
     ORDER BY created_at DESC`,
       [article_id]
     )
-    .then((comments) => {
-      return comments.rows;
+    .then(({rows}) => {
+      return rows;
     });
 };
 
@@ -128,19 +128,19 @@ exports.patchArticleById = (article_id, inc_votes) => {
   RETURNING *`,
       [inc_votes, article_id]
     )
-    .then((updatedArticle) => {
-      return updatedArticle.rows;
+    .then(({rows}) => {
+      return rows;
     });
 };
 
 exports.getCommentById = (id) => {
   return db
     .query(`SELECT * FROM comments WHERE comment_id = $1`, [id])
-    .then((comment) => {
-      if (comment.rows.length === 0) {
+    .then(({rows}) => {
+      if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Comment does not exist" });
       }
-      return comment.rows;
+      return rows;
     });
 };
 

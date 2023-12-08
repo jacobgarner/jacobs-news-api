@@ -19,9 +19,9 @@ describe("/api/topics", () => {
   it("GET responds with slug and description fields", () => {
     return request(app)
       .get("/api/topics")
-      .then((response) => {
-        expect(response.body.topics.length).toBe(3);
-        response.body.topics.forEach((topic) => {
+      .then(({body}) => {
+        expect(body.topics.length).toBe(3);
+        body.topics.forEach((topic) => {
           expect(typeof topic.slug).toBe("string");
           expect(typeof topic.description).toBe("string");
         });
@@ -42,9 +42,9 @@ describe("/api", () => {
   it("GET responds with all apis objects", () => {
     return request(app)
       .get("/api")
-      .then((response) => {
-        expect(typeof response.body.apis).toEqual("object");
-        expect(response.body.apis["GET /api"].description).toBe(
+      .then(({body}) => {
+        expect(typeof body.apis).toEqual("object");
+        expect(body.apis["GET /api"].description).toBe(
           "serves up a json representation of all the available endpoints of the api"
         );
       });
@@ -59,9 +59,9 @@ describe("/api/articles/:article_id", () => {
     return request(app)
       .get("/api/articles/2")
       .expect(200)
-      .then((response) => {
-        expect(response.body.article[0].article_id).toEqual(2);
-        expect(response.body.article[0]).toMatchObject({
+      .then(({body}) => {
+        expect(body.article.article_id).toEqual(2);
+        expect(body.article).toMatchObject({
           author: expect.any(String),
           title: expect.any(String),
           article_id: expect.any(Number),
@@ -80,16 +80,16 @@ describe("/api/articles/:article_id", () => {
   it("Reponds with 'bad request' as error message if provided something other than number as article id", () => {
     return request(app)
       .get("/api/articles/cat")
-      .then((response) => {
-        expect(response.body.msg).toBe("bad request");
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
       });
   });
   it("Reponds with 'bad request' as error message if article id does not exist", () => {
     return request(app)
       .get("/api/articles/306")
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toBe("Article does not exist");
+      .then(({body}) => {
+        expect(body.err).toBe("Article does not exist");
       });
   });
 });
@@ -101,12 +101,12 @@ describe("GET /api/articles", () => {
   it("GET responds with slug and description fields", () => {
     return request(app)
       .get("/api/articles")
-      .then((response) => {
-        expect(response.body).toBeSortedBy("created_at", {
+      .then(({body}) => {
+        expect(body).toBeSortedBy("created_at", {
           descending: true,
         });
-        expect(response.body.length).toBe(13);
-        response.body.forEach((article) => {
+        expect(body.length).toBe(13);
+        body.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
             title: expect.any(String),
@@ -127,13 +127,13 @@ describe("GET /api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
-      .then((response) => {
-        expect(response.body.comments).toBeSortedBy("created_at", {
+      .then(({body}) => {
+        expect(body.comments).toBeSortedBy("created_at", {
           descending: true,
         });
-        expect(response.body.comments.length).toBe(11);
+        expect(body.comments.length).toBe(11);
 
-        response.body.comments.forEach((comment) => {
+        body.comments.forEach((comment) => {
           expect(comment.article_id).toBe(1);
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -149,24 +149,24 @@ describe("GET /api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/cat/comments")
       .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toEqual("bad request");
+      .then(({body}) => {
+        expect(body.msg).toEqual("bad request");
       });
   });
   it("Responds with 'does not exist' if valid article ID provided that does not exist", () => {
     return request(app)
       .get("/api/articles/345/comments")
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toBe("Article does not exist");
+      .then(({body}) => {
+        expect(body.err).toBe("Article does not exist");
       });
   });
   it("Responds with 200 and empty array if no comments", () => {
     return request(app)
       .get("/api/articles/2/comments")
       .expect(200)
-      .then((response) => {
-        expect(response.body.comments).toEqual([]);
+      .then(({body}) => {
+        expect(body.comments).toEqual([]);
       });
   });
 });
@@ -181,11 +181,11 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/2/comments")
       .send(newComment)
       .expect(201)
-      .then((comment) => {
-        const addedComment = comment.body.addedComment;
+      .then(({body}) => {
+        const addedComment = body.addedComment;
         expect(newComment.body).toEqual(addedComment.body);
         expect(newComment.username).toEqual(addedComment.author);
-        expect(comment.body.addedComment).toMatchObject({
+        expect(body.addedComment).toMatchObject({
           comment_id: expect.any(Number),
           article_id: expect.any(Number),
           votes: expect.any(Number),
@@ -202,8 +202,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/345/comments")
       .send(newComment)
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toEqual("Article does not exist");
+      .then(({body}) => {
+        expect(body.err).toEqual("Article does not exist");
       });
   });
   it("Responds with a 404 if the username does not exist", () => {
@@ -212,8 +212,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(commentToAdd)
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toEqual("User does not exist");
+      .then(({body}) => {
+        expect(body.err).toEqual("User does not exist");
       });
   });
   it("Responds with 400 if username or body is missing", () => {
@@ -222,8 +222,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(commentToAdd)
       .expect(400)
-      .then((response) => {
-        expect(response.body.err).toEqual(
+      .then(({body}) => {
+        expect(body.err).toEqual(
           "request body must include username and body properties"
         );
       });
@@ -237,8 +237,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/cat/comments")
       .send(newComment)
       .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toEqual("bad request");
+      .then(({body}) => {
+        expect(body.msg).toEqual("bad request");
       });
   });
   it("Responds 201 if additional fields are provided in the req body", () => {
@@ -251,8 +251,8 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/2/comments")
       .send(newComment)
       .expect(201)
-      .then((comment) => {
-        const addedComment = comment.body.addedComment.body;
+      .then(({body}) => {
+        const addedComment = body.addedComment.body;
         expect(newComment.body).toEqual(addedComment);
       });
   });
@@ -265,10 +265,10 @@ describe("PATCH /api/articles/:article_id", () => {
       .patch("/api/articles/1")
       .send(patchObj)
       .expect(200)
-      .then((response) => {
-        expect(response.body.votes).toBe(105);
-        expect(response.body.article_id).toBe(1);
-        expect(response.body).toMatchObject({
+      .then(({body}) => {
+        expect(body.votes).toBe(105);
+        expect(body.article_id).toBe(1);
+        expect(body).toMatchObject({
           title: expect.any(String),
           topic: expect.any(String),
           author: expect.any(String),
@@ -284,8 +284,8 @@ describe("PATCH /api/articles/:article_id", () => {
       .patch("/api/articles/1000")
       .send(patchObj)
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toBe("Article does not exist");
+      .then(({body}) => {
+        expect(body.err).toBe("Article does not exist");
       });
   });
   it("Responds with 400 if vote count is missing", () => {
@@ -294,8 +294,8 @@ describe("PATCH /api/articles/:article_id", () => {
       .patch("/api/articles/1")
       .send(patchObj)
       .expect(400)
-      .then((response) => {
-        expect(response.body.err).toBe("Missing vote count");
+      .then(({body}) => {
+        expect(body.err).toBe("Missing vote count");
       });
   });
   it("Returns 400 if invalid article id provided", () => {
@@ -304,8 +304,8 @@ describe("PATCH /api/articles/:article_id", () => {
       .patch("/api/articles/cat")
       .send(patchObj)
       .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("bad request");
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
       });
   });
   it("Responds with 400 if vote count is not a number", () => {
@@ -314,8 +314,8 @@ describe("PATCH /api/articles/:article_id", () => {
       .patch("/api/articles/1")
       .send(patchObj)
       .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("bad request");
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
       });
   });
 });
@@ -328,16 +328,16 @@ describe("DELETE /api/comments/:comment_id", () => {
     return request(app)
       .delete("/api/comments/10000")
       .expect(404)
-      .then((response) => {
-        expect(response.body.err).toBe("Comment does not exist");
+      .then(({body}) => {
+        expect(body.err).toBe("Comment does not exist");
       });
   });
   it("Returns 400 if invalid comment id provided", () => {
     return request(app)
       .delete("/api/comments/cat")
       .expect(400)
-      .then((response) => {
-        expect(response.body.msg).toBe("bad request");
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
       });
   });
 });
@@ -350,9 +350,9 @@ describe("/api/users", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
-      .then((response) => {
-        expect(response.body.users.length).toBe(4);
-        response.body.users.forEach((user) => {
+      .then(({body}) => {
+        expect(body.users.length).toBe(4);
+        body.users.forEach((user) => {
           expect(user).toMatchObject({
             username: expect.any(String),
             name: expect.any(String),
@@ -370,9 +370,9 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
   it("GET responds with articles with 'mitch' as the topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
-      .then((response) => {
-        expect(response.body.length).toBe(12);
-        response.body.forEach((article) => {
+      .then(({body}) => {
+        expect(body.length).toBe(12);
+        body.forEach((article) => {
           expect(article.topic).toEqual("mitch");
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -390,16 +390,16 @@ describe("GET /api/articles can accept 'topic' as a query", () => {
     return request(app)
       .get("/api/articles?topic=dogs")
       .expect(400)
-      .then((response) => {
-        expect(response.body.err).toBe("topic does not exist");
+      .then(({body}) => {
+        expect(body.err).toBe("topic does not exist");
       });
   });
   it("Returns 200 if topic exists but has no articles", () => {
     return request(app)
       .get("/api/articles?topic=paper")
       .expect(200)
-      .then((response) => {
-        expect(response.body).toEqual([]);
+      .then(({body}) => {
+        expect(body).toEqual([]);
       });
   });
 });
